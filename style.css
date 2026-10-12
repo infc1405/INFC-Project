@@ -1,0 +1,308 @@
+:root {
+  --bg: #edf0f3;
+  --surface: #ffffff;
+  --ink: #18212b;
+  --muted: #5b6773;
+  --line: #c9d1d9;
+  --blue: #2447c8;
+  --amber: #a86a0a;
+  --amber-bg: #fdf3df;
+  --green: #0b7a58;
+  --green-bg: #e3f4ed;
+  --danger: #b3261e;
+  --radius: 10px;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Vazirmatn", Tahoma, system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+a { color: inherit; }
+
+:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.wrap {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* ---------- header ---------- */
+.site-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.site-header .wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0 1.5rem;
+}
+
+.brand {
+  font-weight: 800;
+  font-size: 1.25rem;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  padding: 0.7rem 0;
+  direction: ltr;
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.25rem;
+}
+
+.nav a {
+  text-decoration: none;
+  color: var(--muted);
+  padding: 0.75rem 0.1rem 0.6rem;
+  border-bottom: 3px solid transparent;
+  font-weight: 500;
+}
+
+.nav a:hover { color: var(--ink); }
+
+.nav a[aria-current="page"] {
+  color: var(--ink);
+  font-weight: 700;
+  border-bottom-color: var(--blue);
+}
+
+/* ---------- intro ---------- */
+.intro { padding: 2.5rem 0 1.5rem; }
+
+.intro h1 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  line-height: 1.35;
+  font-weight: 800;
+}
+
+.intro p {
+  margin: 0;
+  max-width: 60ch;
+  color: var(--muted);
+}
+
+.summary {
+  margin-top: 1rem !important;
+  color: var(--ink) !important;
+  font-weight: 600;
+}
+
+/* ---------- ledger table ---------- */
+.ledger {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 2.5rem;
+}
+
+table { width: 100%; border-collapse: collapse; }
+
+th, td {
+  text-align: right;
+  padding: 0.85rem 1rem;
+  vertical-align: top;
+}
+
+thead th {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  background: #f6f8fa;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+tbody tr + tr td { border-top: 1px solid var(--line); }
+
+.code {
+  direction: ltr;
+  display: inline-block;
+  font-weight: 700;
+  color: var(--blue);
+  white-space: nowrap;
+}
+
+.pname { font-weight: 700; }
+
+.pcat {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.note { color: var(--muted); max-width: 36ch; font-size: 0.95rem; }
+
+/* status stamp: dashed = still waiting, solid = accepted */
+.stamp {
+  display: inline-block;
+  padding: 0.05rem 0.7rem;
+  border: 2px solid currentColor;
+  border-radius: 6px;
+  font-weight: 800;
+  font-size: 0.9rem;
+  transform: rotate(-3deg);
+  white-space: nowrap;
+}
+
+.stamp.pending {
+  color: var(--amber);
+  background: var(--amber-bg);
+  border-style: dashed;
+}
+
+.stamp.accepted {
+  color: var(--green);
+  background: var(--green-bg);
+  border-style: solid;
+}
+
+.empty {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--muted);
+}
+
+/* ---------- admin panel ---------- */
+.admin {
+  background: var(--surface);
+  border: 2px dashed var(--blue);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin h2 { margin: 0 0 0.25rem; font-size: 1.25rem; }
+.admin .hint { margin: 0 0 1rem; color: var(--muted); font-size: 0.95rem; }
+
+.draft-banner {
+  background: var(--amber-bg);
+  color: var(--amber);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.9rem 1rem;
+}
+
+.field { display: flex; flex-direction: column; gap: 0.25rem; }
+.field.wide { grid-column: 1 / -1; }
+
+label { font-weight: 600; font-size: 0.95rem; }
+
+input, select, textarea {
+  font: inherit;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  width: 100%;
+}
+
+input[dir="ltr"] { text-align: left; }
+textarea { min-height: 5.5rem; resize: vertical; }
+
+.counter { font-size: 0.85rem; color: var(--muted); }
+.counter.max { color: var(--danger); font-weight: 700; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1rem; }
+
+button {
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.55rem 1.1rem;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+}
+
+button:hover { border-color: var(--ink); }
+
+button.primary {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+}
+
+button.primary:hover { background: #1b3aa8; }
+
+button.small { padding: 0.15rem 0.6rem; font-size: 0.85rem; }
+button.danger { color: var(--danger); }
+
+.row-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+.msg { min-height: 1.6rem; margin: 0.75rem 0 0; font-weight: 600; color: var(--green); }
+.msg.err { color: var(--danger); }
+
+#copy-out { margin-top: 0.5rem; min-height: 9rem; direction: ltr; font-size: 0.8rem; }
+
+/* ---------- footer ---------- */
+.site-footer {
+  border-top: 1px solid var(--line);
+  padding: 1.25rem 0 2rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* ---------- phones: rows become stacked cards ---------- */
+@media (max-width: 720px) {
+  .grid { grid-template-columns: 1fr; }
+
+  thead { display: none; }
+  table, tbody, tr, td { display: block; width: 100%; }
+
+  tbody tr { padding: 0.5rem 0; }
+  tbody tr + tr { border-top: 1px solid var(--line); }
+  tbody tr + tr td { border-top: 0; }
+
+  td {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.35rem 1rem;
+  }
+
+  td::before {
+    content: attr(data-label);
+    color: var(--muted);
+    font-size: 0.85rem;
+    flex: none;
+  }
+
+  td.cell-note { display: block; }
+  td.cell-note::before { display: block; margin-bottom: 0.1rem; }
+  .note { max-width: none; }
+  .intro { padding-top: 1.75rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
