@@ -17,6 +17,8 @@
   const kindLabel = p => (KINDS[kindOf(p)] || CATS[p.category] || { label: '' }).label;
   const STATUS = { pending: 'در انتظار', accepted: 'قبول شد' };
   const KEY = 'infc_project_draft_v1';
+  const PUB_KEY = 'infc_project_published_v1';
+  const CONF_KEY = 'infc_github_conf_v1';
   const MAX_NOTE = 150;
   const MAX_SITE = 30;
 
@@ -46,6 +48,18 @@
   let usingDraft = false;
   let editing = null;          // code of the project being edited
 
+  /* ---------- GitHub settings (stored only in this browser) ---------- */
+  function loadConf() {
+    const def = { owner: 'infc1405', repo: 'INFC-Project', token: '' };
+    try {
+      const saved = JSON.parse(localStorage.getItem(CONF_KEY) || '{}');
+      return Object.assign(def, saved);
+    } catch (e) { return def; }
+  }
+  function saveConf(c) {
+    try { localStorage.setItem(CONF_KEY, JSON.stringify(c)); } catch (e) { /* ignore */ }
+  }
+
   /* ---------- load ---------- */
   async function load() {
     let base = [];
@@ -68,6 +82,80 @@
 
   function saveDraft() {
     try { localStorage.setItem(KEY, JSON.stringify(projects)); usingDraft = true; } catch (e) { /* ignore */ }
+  }
+
+  function isPublished() {
+    try { return localStorage.getItem(PUB_KEY) === JSON.stringify(projects); } catch (e) { return false; }
+  }
+  function markPublished() {
+    try { localStorage.setItem(PUB_KEY, JSON.stringify(projects)); } catch (e) { /* ignore */ }
+  }
+
+  /* ---------- publish to GitHub ---------- */
+  function toBase64(text) {
+    const bytes = new TextEncoder().encode(text);
+    let bin = '';
+    bytes.forEach(b => { bin += String.fromCharCode(b); });
+    return btoa(bin);
+  }
+
+  function apiError(status) {
+    if (status === 401) return 'توکن نامعتبر یا منقضی شده است.';
+    if (status === 403) return 'دسترسی توکن کافی نیست (Contents باید Read and write باشد).';
+    if (status === 404) return 'مخزن یا فایل پیدا نشد؛ نام کاربری و نام مخزن را بررسی کنید.';
+    if (status === 409 || status === 422) return 'تداخل در نسخه فایل؛ دوباره تلاش کنید.';
+    return 'خطای GitHub (' + status + ').';
+  }
+
+  async function doPublish() {
+    const c = loadConf();
+    const url = 'https://api.github.com/repos/' + encodeURIComponent(c.owner) + '/' +
+      encodeURIComponent(c.repo) + '/contents/projects.json';
+    const headers = {
+      'Authorization': 'Bearer ' + c.token,
+      'Accept': 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28'
+    };
+    const text = JSON.stringify(projects, null, 2) + '\n';
+    const content = toBase64(text);
+
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const g = await fetch(url, { headers, cache: 'no-store' });
+      let sha;
+      if (g.ok) sha = (await g.json()).sha;
+      else if (g.status !== 404) throw new Error(apiError(g.status));
+
+      const body = { message: 'Update projects.json from admin', content };
+      if (sha) body.sha = sha;
+      const r = await fetch(url, {
+        method: 'PUT',
+        headers: Object.assign({ 'Content-Type': 'application/json' }, headers),
+        body: JSON.stringify(body)
+      });
+      if (r.ok) return;
+      if ((r.status === 409 || r.status === 422) && attempt === 0) continue;
+      throw new Error(apiError(r.status));
+    }
+  }
+
+  let queue = Promise.resolve();
+  function push(okText) {
+    const c = loadConf();
+    if (!c.token) {
+      say(okText + ' ارسال خودکار انجام نشد چون توکن در «تنظیمات اتصال» وارد نشده است.', true);
+      return;
+    }
+    say('در حال ارسال به GitHub...');
+    queue = queue
+      .then(doPublish)
+      .then(() => {
+        markPublished();
+        render();
+        say(okText + ' به GitHub ارسال شد؛ تا حدود ۲ دقیقه دیگر در سایت نمایش داده می‌شود.');
+      })
+      .catch(e => {
+        say('ارسال به GitHub ناموفق بود: ' + e.message + ' تغییر روی همین گوشی ذخیره شده است.', true);
+      });
   }
 
   /* ---------- render ---------- */
@@ -117,7 +205,7 @@
     }
 
     const banner = document.getElementById('draft-banner');
-    if (banner) banner.hidden = !(isAdmin && usingDraft);
+    if (banner) banner.hidden = !(isAdmin && usingDraft && !isPublished());
   }
 
   function adminButtons(p) {
@@ -127,14 +215,14 @@
         onclick: () => {
           p.status = p.status === 'accepted' ? 'pending' : 'accepted';
           saveDraft(); render();
-          say('وضعیت ' + p.code + ' تغییر کرد. برای انتشار، فایل را کپی کنید.');
+          push('وضعیت ' + p.code + ' تغییر کرد.');
         } }),
       h('button', { type: 'button', class: 'small', text: 'ویرایش', onclick: () => startEdit(p) }),
       h('button', { type: 'button', class: 'small danger', text: 'حذف', onclick: () => {
         if (!confirm('پروژه ' + p.code + ' حذف شود؟')) return;
         projects = projects.filter(x => x !== p);
         saveDraft(); render(); refreshCode();
-        say('پروژه ' + p.code + ' حذف شد. برای انتشار، فایل را کپی کنید.');
+        push('پروژه ' + p.code + ' حذف شد.');
       } }));
   }
 
@@ -198,8 +286,57 @@
     $('admin').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  function buildConnectionBox() {
+    const c = loadConf();
+    const owner = h('input', { id: 'gh-owner', dir: 'ltr', value: c.owner });
+    const repo = h('input', { id: 'gh-repo', dir: 'ltr', value: c.repo });
+    const token = h('input', { id: 'gh-token', dir: 'ltr', type: 'password',
+      autocomplete: 'off', placeholder: c.token ? 'توکن ذخیره شده است (برای تغییر، توکن جدید وارد کنید)' : 'github_pat_...' });
+    const msg = h('p', { class: 'msg', role: 'status', 'aria-live': 'polite' });
+
+    const box = h('details', { class: 'gh-conf' },
+      h('summary', { text: 'تنظیمات اتصال به GitHub' }),
+      h('p', { class: 'hint', text: 'این اطلاعات فقط در مرورگر همین گوشی ذخیره می‌شود و داخل فایل‌های سایت قرار نمی‌گیرد.' }),
+      h('div', { class: 'grid' },
+        h('div', { class: 'field' }, h('label', { for: 'gh-owner', text: 'نام کاربری گیت‌هاب' }), owner),
+        h('div', { class: 'field' }, h('label', { for: 'gh-repo', text: 'نام مخزن' }), repo),
+        h('div', { class: 'field wide' }, h('label', { for: 'gh-token', text: 'توکن' }), token)),
+      h('div', { class: 'actions' },
+        h('button', { type: 'button', class: 'primary', text: 'ذخیره تنظیمات', onclick: () => {
+          const cur = loadConf();
+          cur.owner = owner.value.trim() || 'infc1405';
+          cur.repo = repo.value.trim() || 'INFC-Project';
+          if (token.value.trim()) cur.token = token.value.trim();
+          saveConf(cur);
+          token.value = '';
+          token.placeholder = 'توکن ذخیره شده است (برای تغییر، توکن جدید وارد کنید)';
+          msg.textContent = 'تنظیمات ذخیره شد.';
+          msg.className = 'msg';
+        } }),
+        h('button', { type: 'button', class: 'danger', text: 'حذف توکن از این گوشی', onclick: () => {
+          const cur = loadConf();
+          cur.token = '';
+          saveConf(cur);
+          token.placeholder = 'github_pat_...';
+          msg.textContent = 'توکن از این گوشی حذف شد.';
+          msg.className = 'msg';
+        } }),
+        h('button', { type: 'button', text: 'ارسال همه پروژه‌ها به GitHub', onclick: () => {
+          push('همه پروژه‌ها');
+        } })),
+      msg);
+    if (!c.token) box.open = true;
+    return box;
+  }
+
   function setupAdmin() {
     $('admin').hidden = false;
+    const hint = document.querySelector('#admin .hint');
+    if (hint) {
+      hint.textContent = 'با زدن «ذخیره پروژه» اطلاعات به‌صورت خودکار در GitHub ثبت می‌شود و حدود ۲ دقیقه بعد در سایت نمایش داده می‌شود. دکمه «کپی فایل» فقط برای حالت اضطراری است.';
+    }
+    $('proj-form').before(buildConnectionBox());
+
     $('f-category').addEventListener('change', refreshCode);
     $('f-code').addEventListener('input', () => { codeTouched = true; });
     $('f-note').addEventListener('input', updateCounter);
@@ -231,7 +368,7 @@
       saveDraft(); render();
       const wasEdit = !!editing;
       resetForm();
-      say(wasEdit ? 'ویرایش ذخیره شد.' : 'پروژه ذخیره شد. برای انتشار، فایل را کپی کنید.');
+      push(wasEdit ? 'ویرایش ذخیره شد.' : 'پروژه ذخیره شد.');
     });
 
     $('btn-copy').addEventListener('click', async () => {
@@ -252,7 +389,7 @@
 
     $('btn-reset').addEventListener('click', () => {
       if (!confirm('پیش‌نویس این گوشی پاک شود و دوباره projects.json منتشرشده نمایش داده شود؟')) return;
-      try { localStorage.removeItem(KEY); } catch (e) { /* ignore */ }
+      try { localStorage.removeItem(KEY); localStorage.removeItem(PUB_KEY); } catch (e) { /* ignore */ }
       load();
       resetForm();
       say('پیش‌نویس پاک شد.');
