@@ -1,14 +1,18 @@
 :root {
-  --bg: #edf0f3;
+  --bg: #f4f8ec;
   --surface: #ffffff;
-  --ink: #18212b;
-  --muted: #5b6773;
-  --line: #c9d1d9;
-  --blue: #2447c8;
+  --ink: #24302a;
+  --muted: #5f6e5f;
+  --line: #d3dfc3;
+  --pistachio: #a8c686;
+  --pistachio-soft: #eef5e2;
+  --blue: #6ec1e4;
+  --blue-hover: #58b2d8;
+  --blue-dark: #1e78a0;
   --amber: #a86a0a;
   --amber-bg: #fdf3df;
-  --green: #0b7a58;
-  --green-bg: #e3f4ed;
+  --green: #3f6b1f;
+  --green-bg: #e6f1d6;
   --danger: #b3261e;
   --radius: 10px;
 }
@@ -29,7 +33,7 @@ body {
 a { color: inherit; }
 
 :focus-visible {
-  outline: 3px solid var(--blue);
+  outline: 3px solid var(--blue-dark);
   outline-offset: 2px;
 }
 
@@ -41,8 +45,8 @@ a { color: inherit; }
 
 /* ---------- header ---------- */
 .site-header {
-  background: var(--surface);
-  border-bottom: 1px solid var(--line);
+  background: var(--pistachio);
+  border-bottom: 3px solid var(--blue);
 }
 
 .site-header .wrap {
@@ -70,7 +74,7 @@ a { color: inherit; }
 
 .nav a {
   text-decoration: none;
-  color: var(--muted);
+  color: #3a4a33;
   padding: 0.75rem 0.1rem 0.6rem;
   border-bottom: 3px solid transparent;
   font-weight: 500;
@@ -81,7 +85,7 @@ a { color: inherit; }
 .nav a[aria-current="page"] {
   color: var(--ink);
   font-weight: 700;
-  border-bottom-color: var(--blue);
+  border-bottom-color: #ffffff;
 }
 
 /* ---------- intro ---------- */
@@ -127,7 +131,7 @@ thead th {
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--muted);
-  background: #f6f8fa;
+  background: var(--pistachio-soft);
   border-bottom: 1px solid var(--line);
   white-space: nowrap;
 }
@@ -138,7 +142,7 @@ tbody tr + tr td { border-top: 1px solid var(--line); }
   direction: ltr;
   display: inline-block;
   font-weight: 700;
-  color: var(--blue);
+  color: var(--blue-dark);
   white-space: nowrap;
 }
 
@@ -248,10 +252,10 @@ button:hover { border-color: var(--ink); }
 button.primary {
   background: var(--blue);
   border-color: var(--blue);
-  color: #fff;
+  color: var(--ink);
 }
 
-button.primary:hover { background: #1b3aa8; }
+button.primary:hover { background: var(--blue-hover); }
 
 button.small { padding: 0.15rem 0.6rem; font-size: 0.85rem; }
 button.danger { color: var(--danger); }
