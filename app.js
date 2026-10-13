@@ -18,6 +18,7 @@
   const STATUS = { pending: 'در انتظار', accepted: 'قبول شد' };
   const KEY = 'infc_project_draft_v1';
   const MAX_NOTE = 150;
+  const MAX_SITE = 30;
 
   const page = document.body.dataset.page;               // home | web | programming | logo
   const isAdmin = page === 'home' && new URLSearchParams(location.search).has('admin');
@@ -90,7 +91,7 @@
     if (!visible.length) {
       holder.append(h('p', { class: 'empty', text: 'هنوز پروژه‌ای در این بخش ثبت نشده است.' }));
     } else {
-      const heads = ['کد پروژه', 'نام پروژه', 'تاریخ پیشنهاد', 'مدت (روز)', 'وضعیت', 'توضیحات'];
+      const heads = ['کد پروژه', 'نام پروژه', 'سایت', 'تاریخ پیشنهاد', 'مدت (روز)', 'وضعیت', 'توضیحات'];
       if (isAdmin) heads.push('مدیریت');
 
       const rows = visible.map(p => {
@@ -98,6 +99,7 @@
           h('td', { 'data-label': 'کد پروژه' }, h('span', { class: 'code', text: p.code })),
           h('td', { 'data-label': 'نام پروژه' }, h('span', { class: 'pname', text: p.name }),
             page === 'home' ? h('span', { class: 'pcat', text: kindLabel(p) }) : null),
+          h('td', { 'data-label': 'سایت', text: p.site || '—' }),
           h('td', { 'data-label': 'تاریخ پیشنهاد', text: fmtDate(p.date) }),
           h('td', { 'data-label': 'مدت (روز)', text: faNum(p.days) }),
           h('td', { 'data-label': 'وضعیت' },
@@ -185,6 +187,7 @@
     $('f-category').value = kindOf(p);
     $('f-code').value = p.code;
     $('f-name').value = p.name;
+    $('f-site').value = p.site || '';
     $('f-date').value = p.date;
     $('f-days').value = p.days;
     $('f-status').value = p.status;
@@ -208,6 +211,7 @@
         code: $('f-code').value.trim().toUpperCase(),
         name: $('f-name').value.trim(),
         category: KINDS[$('f-category').value].category,
+        site: $('f-site').value.trim().slice(0, MAX_SITE),
         date: $('f-date').value,
         days: parseInt($('f-days').value, 10),
         status: $('f-status').value,
