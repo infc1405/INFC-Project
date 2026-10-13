@@ -175,7 +175,18 @@
 
     const holder = document.getElementById('ledger');
     holder.replaceChildren();
-
+  if (page === 'home' && !isAdmin) {
+      const rowStyle = 'display:flex;justify-content:space-between;align-items:center;' +
+        'padding:14px 16px;margin-bottom:10px;background:#fff;border:1px solid #d9dfc8;border-radius:12px;';
+      holder.append(h('div', {},
+        Object.keys(KINDS).map(k => {
+          const n = projects.filter(p => kindOf(p) === k).length;
+          return h('div', { style: rowStyle },
+            h('span', { text: 'پروژه ' + KINDS[k].label }),
+            h('strong', { text: faNum(n) + ' مورد' }));
+        })));
+      return;
+    }
     if (!visible.length) {
       holder.append(h('p', { class: 'empty', text: 'هنوز پروژه‌ای در این بخش ثبت نشده است.' }));
     } else {
