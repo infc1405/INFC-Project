@@ -28,5 +28,15 @@
     "days": 14,
     "status": "pending",
     "note": "سایتی برای فروش شمش طلا"
+  },
+  {
+    "code": "PG-001",
+    "name": "طراحی برنامه",
+    "category": "programming",
+    "site": "کارلنسر",
+    "date": "2026-10-14",
+    "days": 30,
+    "status": "pending",
+    "note": "ساخت برنامه خواندن سریال از روی برد"
   }
 ]
