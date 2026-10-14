@@ -15,7 +15,7 @@
   const kindOf = p => Object.keys(KINDS).find(k => (p.code || '').startsWith(KINDS[k].prefix + '-'))
     || Object.keys(KINDS).find(k => KINDS[k].category === p.category);
   const kindLabel = p => (KINDS[kindOf(p)] || CATS[p.category] || { label: '' }).label;
-  const STATUS = { pending: 'در انتظار', accepted: 'قبول شد' };
+  const STATUS = { pending: 'در انتظار', accepted: 'قبول شد', rejected: 'واگذار نشد' };
   const KEY = 'infc_project_draft_v1';
   const PUB_KEY = 'infc_project_published_v1';
   const CONF_KEY = 'infc_github_conf_v1';
@@ -47,6 +47,7 @@
   let projects = [];
   let usingDraft = false;
   let editing = null;          // code of the project being edited
+  let showRejected = false;    // admin only: show "not awarded" projects
 
   /* ---------- GitHub settings (stored only in this browser) ---------- */
   function loadConf() {
@@ -162,25 +163,27 @@
   function render() {
     const visible = projects
       .filter(p => page === 'home' || p.category === page)
+      .filter(p => p.status !== 'rejected' || (isAdmin && showRejected))
       .sort((a, b) => (b.date || '').localeCompare(a.date || '') || a.code.localeCompare(b.code));
 
-    const accepted = visible.filter(p => p.status === 'accepted').length;
-    const pending = visible.length - accepted;
+    const counted = visible.filter(p => p.status !== 'rejected');
+    const accepted = counted.filter(p => p.status === 'accepted').length;
+    const pending = counted.length - accepted;
     const summary = document.getElementById('summary');
     if (summary) {
-      summary.textContent = visible.length
-        ? `${faNum(visible.length)} پروژه ثبت شده است؛ ${faNum(accepted)} مورد قبول شده و ${faNum(pending)} مورد در انتظار است.`
+      summary.textContent = counted.length
+        ? `${faNum(counted.length)} پروژه ثبت شده است؛ ${faNum(accepted)} مورد قبول شده و ${faNum(pending)} مورد در انتظار است.`
         : '';
     }
 
     const holder = document.getElementById('ledger');
     holder.replaceChildren();
-  if (page === 'home' && !isAdmin) {
+    if (page === 'home' && !isAdmin) {
       const rowStyle = 'display:flex;justify-content:space-between;align-items:center;' +
         'padding:14px 16px;margin-bottom:10px;background:#fff;border:1px solid #d9dfc8;border-radius:12px;';
       holder.append(h('div', {},
         Object.keys(KINDS).map(k => {
-          const n = projects.filter(p => kindOf(p) === k).length;
+          const n = projects.filter(p => kindOf(p) === k && p.status !== 'rejected').length;
           return h('div', { style: rowStyle },
             h('span', { text: 'پروژه ' + KINDS[k].label }),
             h('strong', { text: faNum(n) + ' مورد' }));
@@ -202,7 +205,7 @@
           h('td', { 'data-label': 'تاریخ پیشنهاد', text: fmtDate(p.date) }),
           h('td', { 'data-label': 'مدت (روز)', text: faNum(p.days) }),
           h('td', { 'data-label': 'وضعیت' },
-            h('span', { class: 'stamp ' + (p.status === 'accepted' ? 'accepted' : 'pending'),
+            h('span', { class: 'stamp ' + (STATUS[p.status] ? p.status : 'pending'),
                         text: STATUS[p.status] || STATUS.pending })),
           h('td', { class: 'cell-note note', 'data-label': 'توضیحات', text: (p.note || '').slice(0, MAX_NOTE) })
         ];
@@ -225,6 +228,13 @@
         text: p.status === 'accepted' ? 'برگرداندن به در انتظار' : 'ثبت قبول شد',
         onclick: () => {
           p.status = p.status === 'accepted' ? 'pending' : 'accepted';
+          saveDraft(); render();
+          push('وضعیت ' + p.code + ' تغییر کرد.');
+        } }),
+      h('button', { type: 'button', class: 'small',
+        text: p.status === 'rejected' ? 'برگرداندن به در انتظار' : 'واگذار نشد',
+        onclick: () => {
+          p.status = p.status === 'rejected' ? 'pending' : 'rejected';
           saveDraft(); render();
           push('وضعیت ' + p.code + ' تغییر کرد.');
         } }),
@@ -347,6 +357,15 @@
       hint.textContent = 'با زدن «ذخیره پروژه» اطلاعات به‌صورت خودکار در GitHub ثبت می‌شود و حدود ۲ دقیقه بعد در سایت نمایش داده می‌شود. دکمه «کپی فایل» فقط برای حالت اضطراری است.';
     }
     $('proj-form').before(buildConnectionBox());
+
+    const wrap = $('show-rejected-wrap');
+    if (wrap) {
+      wrap.hidden = false;
+      $('show-rejected').addEventListener('change', e => {
+        showRejected = e.target.checked;
+        render();
+      });
+    }
 
     $('f-category').addEventListener('change', refreshCode);
     $('f-code').addEventListener('input', () => { codeTouched = true; });
