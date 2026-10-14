@@ -11,6 +11,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <style>
+    .stamp.rejected { background: #f3dcdc; color: #8a2c2c; }
+    #show-rejected-wrap { display: block; margin: 8px 0 12px; }
+    #show-rejected-wrap[hidden] { display: none; }
+  </style>
 </head>
 <body data-page="home">
   <header class="site-header">
@@ -55,10 +60,10 @@
             <label for="f-name">نام پروژه</label>
             <input id="f-name" required>
           </div>
-        <div class="field">
+          <div class="field">
             <label for="f-site">سایت</label>
             <input id="f-site" maxlength="30" placeholder="مثلاً کارلنسر">
-          </div>  
+          </div>
           <div class="field">
             <label for="f-date">تاریخ پیشنهاد</label>
             <input id="f-date" type="date" required>
@@ -72,6 +77,7 @@
             <select id="f-status">
               <option value="pending">در انتظار</option>
               <option value="accepted">قبول شد</option>
+              <option value="rejected">واگذار نشد</option>
             </select>
           </div>
           <div class="field wide">
@@ -90,6 +96,10 @@
         <textarea id="copy-out" hidden readonly aria-label="متن projects.json"></textarea>
       </form>
     </section>
+
+    <label id="show-rejected-wrap" class="hint" hidden>
+      <input type="checkbox" id="show-rejected"> نمایش پروژه‌های واگذارنشده
+    </label>
 
     <div id="ledger" class="ledger"></div>
   </main>
