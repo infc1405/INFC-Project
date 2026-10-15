@@ -68,5 +68,15 @@
     "days": 7,
     "status": "pending",
     "note": ""
+  },
+  {
+    "code": "APP-001",
+    "name": "تبدیل اکسل به برنامه اندروید وios",
+    "category": "web",
+    "site": "کارلنسر",
+    "date": "2026-10-15",
+    "days": 10,
+    "status": "pending",
+    "note": ""
   }
 ]
