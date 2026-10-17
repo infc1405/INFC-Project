@@ -20,16 +20,6 @@
     "note": "طراحی لوگو برای آموزشگاه پیام"
   },
   {
-    "code": "PG-001",
-    "name": "طراحی برنامه",
-    "category": "programming",
-    "site": "کارلنسر",
-    "date": "2026-10-14",
-    "days": 30,
-    "status": "pending",
-    "note": "ساخت برنامه خواندن سریال از روی برد"
-  },
-  {
     "code": "AP-001",
     "name": "برنامه سوپر مارکت",
     "category": "programming",
