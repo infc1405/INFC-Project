@@ -40,16 +40,6 @@
     "note": "ساخت برنامه خواندن سریال از روی برد"
   },
   {
-    "code": "WP-003",
-    "name": "طراح سایت شرکتی",
-    "category": "web",
-    "site": "کارلنسر",
-    "date": "2026-10-14",
-    "days": 5,
-    "status": "pending",
-    "note": ""
-  },
-  {
     "code": "AP-001",
     "name": "برنامه سوپر مارکت",
     "category": "programming",
