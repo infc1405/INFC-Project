@@ -98,5 +98,15 @@
     "days": 5,
     "status": "pending",
     "note": ""
+  },
+  {
+    "code": "WP-008",
+    "name": "طراحی سایت",
+    "category": "web",
+    "site": "کارلنسر",
+    "date": "2026-10-16",
+    "days": 7,
+    "status": "pending",
+    "note": "وبسایت آموزشی برای معرفی و فروش دوره"
   }
 ]
