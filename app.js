@@ -22,8 +22,10 @@
   const MAX_NOTE = 150;
   const MAX_SITE = 30;
 
-  const page = document.body.dataset.page;               // home | web | programming | logo
-  const isAdmin = page === 'home' && new URLSearchParams(location.search).has('admin');
+  const page = document.body.dataset.page;               // home | web | programming | logo | status
+  const hasAdminFlag = new URLSearchParams(location.search).has('admin');
+  const isAdmin = (page === 'home' || page === 'status') && hasAdminFlag;
+  const hasForm = isAdmin && page === 'home';
 
   const faNum = n => Number(n).toLocaleString('fa-IR');
   const dateFmt = new Intl.DateTimeFormat('fa-IR-u-ca-persian', { dateStyle: 'medium' });
@@ -78,7 +80,7 @@
       try { projects = JSON.parse(draft); usingDraft = true; } catch (e) { projects = base; }
     }
     render();
-    if (isAdmin) refreshCode();
+    if (hasForm) refreshCode();
   }
 
   function saveDraft() {
@@ -143,7 +145,7 @@
   function push(okText) {
     const c = loadConf();
     if (!c.token) {
-      say(okText + ' ارسال خودکار انجام نشد چون توکن در «تنظیمات اتصال» وارد نشده است.', true);
+      say(okText + ' ارسال خودکار انجام نشد چون توکن در «تنظیمات اتصال» (صفحه ادمین) وارد نشده است.', true);
       return;
     }
     say('در حال ارسال به GitHub...');
@@ -160,11 +162,64 @@
   }
 
   /* ---------- render ---------- */
+  const byDateDesc = (a, b) =>
+    (b.date || '').localeCompare(a.date || '') || a.code.localeCompare(b.code);
+
+  function renderStatus() {
+    const holder = document.getElementById('ledger');
+    holder.replaceChildren();
+    if (!isAdmin) {
+      holder.append(h('p', { class: 'empty', text: 'این صفحه فقط برای مدیر سایت است.' }));
+      return;
+    }
+
+    const heads = ['کد پروژه', 'نام پروژه', 'سایت', 'تاریخ پیشنهاد', 'مدت (روز)', 'وضعیت', 'مدیریت'];
+    const section = (title, status, emptyText) => {
+      const list = projects.filter(p => p.status === status).sort(byDateDesc);
+      const box = h('section', { style: 'margin-bottom:28px;' },
+        h('h2', { text: title + ' (' + faNum(list.length) + ')' }));
+      if (!list.length) {
+        box.append(h('p', { class: 'empty', text: emptyText }));
+        return box;
+      }
+      const rows = list.map(p => h('tr', {},
+        h('td', { 'data-label': 'کد پروژه' }, h('span', { class: 'code', text: p.code })),
+        h('td', { 'data-label': 'نام پروژه' }, h('span', { class: 'pname', text: p.name }),
+          h('span', { class: 'pcat', text: kindLabel(p) })),
+        h('td', { 'data-label': 'سایت', text: p.site || '—' }),
+        h('td', { 'data-label': 'تاریخ پیشنهاد', text: fmtDate(p.date) }),
+        h('td', { 'data-label': 'مدت (روز)', text: faNum(p.days) }),
+        h('td', { 'data-label': 'وضعیت' },
+          h('span', { class: 'stamp ' + p.status, text: STATUS[p.status] })),
+        h('td', { 'data-label': 'مدیریت' },
+          h('div', { class: 'row-actions' },
+            h('button', { type: 'button', class: 'small', text: 'برگرداندن به در انتظار',
+              onclick: () => {
+                p.status = 'pending';
+                saveDraft(); render();
+                push('وضعیت ' + p.code + ' به «در انتظار» برگشت.');
+              } })))));
+      box.append(h('table', {},
+        h('thead', {}, h('tr', {}, heads.map(t => h('th', { scope: 'col', text: t })))),
+        h('tbody', {}, rows)));
+      return box;
+    };
+
+    holder.append(
+      section('قبول‌شده‌ها', 'accepted', 'هنوز پروژه‌ای قبول نشده است.'),
+      section('واگذارنشده‌ها', 'rejected', 'پروژه واگذارنشده‌ای وجود ندارد.'));
+
+    const banner = document.getElementById('draft-banner');
+    if (banner) banner.hidden = !(usingDraft && !isPublished());
+  }
+
   function render() {
+    if (page === 'status') { renderStatus(); return; }
+
     const visible = projects
       .filter(p => page === 'home' || p.category === page)
       .filter(p => p.status !== 'rejected' || (isAdmin && showRejected))
-      .sort((a, b) => (b.date || '').localeCompare(a.date || '') || a.code.localeCompare(b.code));
+      .sort(byDateDesc);
 
     const counted = visible.filter(p => p.status !== 'rejected');
     const accepted = counted.filter(p => p.status === 'accepted').length;
@@ -269,7 +324,7 @@
   }
 
   function refreshCode() {
-    if (!isAdmin || codeTouched || editing) return;
+    if (!hasForm || codeTouched || editing) return;
     $('f-code').value = suggestCode($('f-category').value);
   }
 
@@ -428,6 +483,6 @@
     resetForm();
   }
 
-  if (isAdmin) setupAdmin();
+  if (hasForm) setupAdmin();
   load();
 })();
