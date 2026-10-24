@@ -188,5 +188,15 @@
     "days": 1,
     "status": "pending",
     "note": ""
+  },
+  {
+    "code": "WP-016",
+    "name": "طراحی و پیاده سازی وبسایت استعلام نوع سکه",
+    "category": "web",
+    "site": "کارلنسر",
+    "date": "2026-10-20",
+    "days": 10,
+    "status": "pending",
+    "note": ""
   }
 ]
