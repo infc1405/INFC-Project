@@ -178,5 +178,15 @@
     "days": 5,
     "status": "pending",
     "note": ""
+  },
+  {
+    "code": "WP-015",
+    "name": "بهینه سازی و سرعت عملکرد سایت ورد پرس",
+    "category": "web",
+    "site": "کارلنسر",
+    "date": "2026-10-20",
+    "days": 1,
+    "status": "pending",
+    "note": ""
   }
 ]
