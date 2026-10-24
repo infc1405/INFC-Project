@@ -158,5 +158,15 @@
     "days": 30,
     "status": "pending",
     "note": ""
+  },
+  {
+    "code": "LG-002",
+    "name": "طراحی لوگو برای کسب و کار جهانی",
+    "category": "logo",
+    "site": "کارلنسر",
+    "date": "2026-10-19",
+    "days": 1,
+    "status": "pending",
+    "note": ""
   }
 ]
