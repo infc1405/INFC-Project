@@ -138,5 +138,25 @@
     "days": 2,
     "status": "pending",
     "note": "وبسایت بدون امکانات برای دریافت مجوز زرین پال"
+  },
+  {
+    "code": "WP-013",
+    "name": "طراحی سایت",
+    "category": "web",
+    "site": "کارلنسر",
+    "date": "2026-10-18",
+    "days": 12,
+    "status": "pending",
+    "note": "وبسایت دندانپزشکی"
+  },
+  {
+    "code": "HT-001",
+    "name": "برنامه آموزشی محور",
+    "category": "web",
+    "site": "کارلنسر",
+    "date": "2026-10-19",
+    "days": 30,
+    "status": "pending",
+    "note": ""
   }
 ]
