@@ -198,5 +198,15 @@
     "days": 10,
     "status": "pending",
     "note": ""
+  },
+  {
+    "code": "WP-017",
+    "name": "پشتیبانی فنی و رفع باگ",
+    "category": "web",
+    "site": "کارلنسر",
+    "date": "2026-10-22",
+    "days": 3,
+    "status": "pending",
+    "note": ""
   }
 ]
