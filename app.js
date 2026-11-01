@@ -4,13 +4,15 @@
   const CATS = {
     web:         { title: 'پروژه‌های وب',          prefix: 'WP', label: 'وب' },
     programming: { title: 'پروژه‌های برنامه‌نویسی', prefix: 'PG', label: 'برنامه‌نویسی' },
-    logo:        { title: 'پروژه‌های لوگو و طراحی', prefix: 'LG', label: 'لوگو و طراحی' }
+    logo:        { title: 'پروژه‌های لوگو و طراحی', prefix: 'LG', label: 'لوگو و طراحی' },
+    service:     { title: 'پروژه‌های خدمات',        prefix: 'SV', label: 'خدمات' }
   };
   const KINDS = {
     wp:          { category: 'web',         prefix: 'WP', label: 'وب (وردپرس)' },
     html:        { category: 'web',         prefix: 'HT', label: 'وب (کدنویسی HTML)' },
     programming: { category: 'programming', prefix: 'PG', label: 'برنامه‌نویسی' },
-    logo:        { category: 'logo',        prefix: 'LG', label: 'لوگو و طراحی' }
+    logo:        { category: 'logo',        prefix: 'LG', label: 'لوگو و طراحی' },
+    sv:          { category: 'service',     prefix: 'SV', label: 'خدمات' }
   };
   const kindOf = p => Object.keys(KINDS).find(k => (p.code || '').startsWith(KINDS[k].prefix + '-'))
     || Object.keys(KINDS).find(k => KINDS[k].category === p.category);
@@ -22,7 +24,7 @@
   const MAX_NOTE = 150;
   const MAX_SITE = 30;
 
-  const page = document.body.dataset.page;               // home | web | programming | logo | status
+  const page = document.body.dataset.page;               // home | web | programming | logo | service | status
   const hasAdminFlag = new URLSearchParams(location.search).has('admin');
   const isAdmin = (page === 'home' || page === 'status') && hasAdminFlag;
   const hasForm = isAdmin && page === 'home';
